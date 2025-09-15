@@ -1,0 +1,69 @@
+# Define the version of the Docker Compose file format. Version 3.8 is modern and recommended.
+version: '3.8'
+
+# 'services' is the main section where we define our application's containers.
+services:
+
+  # 1. The Database Service (MySQL)
+  db:
+    image: mysql:8.0          # Use the official MySQL image, version 8.0
+    container_name: apex_db   # A custom name for the container for easy identification
+    restart: unless-stopped   # Policy to restart the container if it stops, unless manually stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD} # Root password for the database
+      MYSQL_DATABASE: ${DB_NAME}               # The name of the database to be created on startup
+      MYSQL_USER: ${DB_USER}                   # The user to be created
+      MYSQL_PASSWORD: ${DB_PASSWORD}           # The password for the new user
+    ports:
+      - "3306:3306"           # Map port 3306 on the host to 3306 in the container for local access
+    volumes:
+      - db_data:/var/lib/mysql # Persist database data to a Docker volume named 'db_data'
+
+  # 2. The Backend API Server
+  api-server:
+    container_name: apex_api
+    build:
+      context: ./api-server   # Specifies that Docker should build this image from the Dockerfile in the 'api-server' directory
+    restart: unless-stopped
+    ports:
+      - "3001:3001"           # Expose port 3001 for the API
+    environment:
+      # Environment variables needed by the API to connect to the database
+      DB_HOST: db
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      PORT: 3001
+    depends_on:
+      - db                    # This service will only start after the 'db' service is ready
+
+  # 3. The Background Worker for checking APIs
+  checker-worker:
+    container_name: apex_worker
+    build:
+      context: ./checker-worker # Build from the 'checker-worker' directory
+    restart: unless-stopped
+    environment:
+      # The worker also needs database credentials to save the health check results
+      DB_HOST: db
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    depends_on:
+      - db
+
+  # 4. The Frontend Service (React App)
+  frontend:
+    container_name: apex_frontend
+    build:
+      context: ./frontend     # Build from the 'frontend' directory
+    restart: unless-stopped
+    ports:
+      - "3000:3000"           # Expose port 3000 for the React development server
+    depends_on:
+      - api-server            # It's good practice to wait for the API to be available
+
+# Top-level 'volumes' declaration for the volume used by the 'db' service.
+# This ensures that your database data persists even if the container is removed.
+volumes:
+  db_data:
