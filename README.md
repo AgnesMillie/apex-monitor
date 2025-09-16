@@ -110,11 +110,3 @@ This is a portfolio project, but feedback and suggestions are always welcome. Pl
 ## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for more information.
-
----
-
-## 📧 Contact
-
-Seu Nome - [seu-linkedin-url] - seu.email@example.com
-
-Project Link: [https://github.com/SEU_USUARIO/apex-monitor](https://github.com/SEU_USUARIO/apex-monitor)

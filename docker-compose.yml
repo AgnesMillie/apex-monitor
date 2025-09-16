@@ -27,8 +27,6 @@ services:
       context: ./api-server
     restart: unless-stopped
     ports:
-      # Esta linha garante que a porta 3001 de dentro do container
-      # seja acessível pela porta 3001 da sua máquina (localhost).
       - "3001:3001"
     environment:
       DB_HOST: db
@@ -39,6 +37,32 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  # 3. The Background Worker for checking APIs
+  checker-worker:
+    container_name: apex_worker
+    build:
+      context: ./checker-worker
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    depends_on:
+      db:
+        condition: service_healthy # Também espera o DB ficar saudável
+
+  # 4. The Frontend Service (React App) (Ainda desativado)
+  # frontend:
+  #   container_name: apex_frontend
+  #   build:
+  #     context: ./frontend
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - api-server
 
 volumes:
   db_data:
