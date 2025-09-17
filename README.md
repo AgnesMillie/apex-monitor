@@ -35,7 +35,7 @@ The system is designed with a clear separation of concerns, orchestrated entirel
 * **`checker-worker`**: A separate background service. It periodically fetches all endpoints from the database and performs HTTP requests to check their status.
 * **`db`**: A MySQL database instance that persists all user and endpoint data.
 
-![Architecture Diagram](https://github.com/user-attachments/assets/9ac5b437-e1a9-4e19-a2f1-07a053a28951)
+![Architecture Diagram](https://github.com/user-attachments/assets/802059b8-96f7-4c58-a631-ae27c2868a83)
 
 ---
 
